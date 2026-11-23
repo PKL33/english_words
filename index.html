@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#111827">
+<title>My English Cards</title>
+<style>
+:root{--bg:#0b1020;--panel:#151d31;--panel2:#1d2942;--text:#f4f7ff;--muted:#aab6d0;--accent:#8b9cff;--green:#67d6a3;--red:#ff8794}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at top,#1b2850 0,#0b1020 58%);color:var(--text);font:16px system-ui,-apple-system,sans-serif;min-height:100vh}
+main{width:min(720px,100%);margin:auto;padding:24px 16px 50px}
+header{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:22px}
+h1{font-size:25px;margin:0}h1 span{color:var(--accent)}.sub{color:var(--muted);font-size:14px;margin-top:5px}
+.pill{background:#263453;border:1px solid #394a70;border-radius:99px;padding:7px 11px;color:#dce4ff;font-size:12px}
+nav{display:flex;gap:8px;overflow:auto;padding:4px 0 14px}
+nav button{white-space:nowrap}
+button,.btn{border:0;border-radius:13px;padding:12px 15px;background:var(--accent);color:#10172c;font-weight:700;font-size:14px;cursor:pointer}
+button.secondary{background:#263453;color:var(--text);border:1px solid #394a70}
+button.danger{background:#4a2634;color:#ffdce1;border:1px solid #754052}
+button:disabled{opacity:.4;cursor:not-allowed}
+.panel{background:rgba(21,29,49,.94);border:1px solid #2b3856;border-radius:20px;padding:18px;margin:10px 0;box-shadow:0 14px 40px #0002}
+h2{font-size:18px;margin:0 0 14px}
+label{display:block;color:var(--muted);font-size:13px;margin:12px 0 6px}
+input,textarea,select{width:100%;background:#0e1628;border:1px solid #354361;color:var(--text);border-radius:12px;padding:13px;font:inherit;outline:none}
+input:focus,textarea:focus{border-color:var(--accent)}
+.row{display:flex;gap:9px;flex-wrap:wrap}.row>*{flex:1}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin:12px 0}
+.stat{background:#111a2d;border-radius:14px;padding:13px;text-align:center}.stat b{display:block;font-size:22px}.stat small{color:var(--muted)}
+.flash{min-height:230px;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;background:linear-gradient(145deg,#26365d,#17213a);border:1px solid #455b8c;border-radius:20px;padding:24px;margin:12px 0;cursor:pointer}
+.flash .word{font-size:clamp(28px,8vw,42px);font-weight:800;overflow-wrap:anywhere}
+.flash .hint{color:#c3cde5;margin-top:13px}.flash .translation{font-size:25px;color:#aebaff;font-weight:700;margin-top:14px}
+.muted{color:var(--muted);font-size:13px}.hidden{display:none!important}.list{display:grid;gap:8px;margin-top:12px}
+.item{display:flex;justify-content:space-between;align-items:center;gap:12px;background:#10192b;border:1px solid #293854;padding:12px;border-radius:13px}
+.item strong{display:block;overflow-wrap:anywhere}.item small{color:var(--muted)}
+.item button{padding:8px 10px}.empty{text-align:center;color:var(--muted);padding:25px}
+#toast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);background:#e7ecff;color:#10172c;padding:10px 16px;border-radius:99px;font-weight:700;display:none;max-width:90%;z-index:5}
+footer{color:var(--muted);font-size:12px;text-align:center;margin-top:24px}
+@media(min-width:600px){main{padding-top:34px}.panel{padding:22px}}
+</style>
+</head>
+<body>
+<main>
+<header><div><h1>My <span>English</span> Cards</h1><div class="sub">Твой личный словарь. Только твои слова.</div></div><div class="pill">🇬🇧 EN → RU</div></header>
+<nav>
+<button class="secondary" data-tab="study">Карточки</button>
+<button class="secondary" data-tab="add">Добавить слово</button>
+<button class="secondary" data-tab="words">Мой словарь</button>
+<button class="secondary" data-tab="quiz">Тренировка</button>
+</nav>
+<section id="study" class="tab panel">
+<h2>Учить слова</h2>
+<div class="stats"><div class="stat"><b id="total">0</b><small>слов</small></div><div class="stat"><b id="learned">0</b><small>выучено</small></div><div class="stat"><b id="progress">0%</b><small>прогресс</small></div></div>
+<div id="flash" class="flash" role="button" tabindex="0" aria-label="Показать перевод"><div class="word" id="cardWord">Добавь первое слово</div><div class="hint" id="cardHint">Нажми, чтобы увидеть перевод</div><div class="translation hidden" id="cardTranslation"></div><div class="muted" id="cardExample"></div></div>
+<div class="row"><button class="secondary" id="prev">← Назад</button><button id="flip">Показать перевод</button><button class="secondary" id="next">Дальше →</button></div>
+</section>
+<section id="add" class="tab panel hidden">
+<h2>Добавить своё слово</h2>
+<label for="en">Слово или фраза на английском *</label><input id="en" placeholder="например, make ends meet" autocomplete="off">
+<label for="ru">Перевод на русском *</label><input id="ru" placeholder="например, сводить концы с концами" autocomplete="off">
+<label for="ex">Пример предложения (необязательно)</label><textarea id="ex" rows="2" placeholder="I work hard to make ends meet."></textarea>
+<div class="row" style="margin-top:14px"><button id="save">Сохранить слово</button><button class="secondary" id="clear">Очистить</button></div>
+<p class="muted">Слова сохраняются в памяти этого браузера на твоём устройстве.</p>
+</section>
+<section id="words" class="tab panel hidden">
+<h2>Мой словарь</h2><input id="search" placeholder="Поиск по словам и переводам…">
+<div id="wordList" class="list"></div>
+<div class="row" style="margin-top:14px"><button class="secondary" id="export">Экспортировать словарь</button><button class="secondary" id="importBtn">Импортировать</button><input id="importFile" type="file" accept="application/json" class="hidden"></div>
+</section>
+<section id="quiz" class="tab panel hidden">
+<h2>Проверь себя</h2>
+<p class="muted">Выбери правильный перевод английского слова.</p>
+<div class="flash" style="min-height:150px;cursor:default"><div class="word" id="quizWord">Добавь слова для тренировки</div></div>
+<div id="choices" class="list"></div>
+<p id="quizResult" class="muted" aria-live="polite"></p>
+<div class="row"><button class="secondary" id="newQuiz">Следующий вопрос</button></div>
+</section>
+<footer>Личный словарь · Данные хранятся только в этом браузере. Экспортируй резервную копию время от времени.</footer>
+</main><div id="toast"></div>
+<script>
+const KEY='myEnglishCards_v1';
+let words=load(), index=0, flipped=false, quizCurrent=null, correct=0;
+function load(){try{return JSON.parse(localStorage.getItem(KEY)||'[]')}catch{return []}}
+function persist(){localStorage.setItem(KEY,JSON.stringify(words));renderStats();renderCard();renderList()}
+function toast(s){let t=document.getElementById('toast');t.textContent=s;t.style.display='block';clearTimeout(window.toastTimer);window.toastTimer=setTimeout(()=>t.style.display='none',2200)}
+function showTab(id){document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('hidden',x.id!==id));document.querySelectorAll('nav button').forEach(b=>b.classList.toggle('secondary',b.dataset.tab!==id));if(id==='words')renderList();if(id==='quiz')newQuiz()}
+document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>showTab(b.dataset.tab));
+function renderStats(){document.getElementById('total').textContent=words.length;let n=words.filter(w=>w.learned).length;document.getElementById('learned').textContent=n;document.getElementById('progress').textContent=words.length?Math.round(n/words.length*100)+'%':'0%'}
+function renderCard(){let w=words[index];flipped=false;document.getElementById('cardTranslation').classList.add('hidden');document.getElementById('cardExample').textContent='';if(!w){document.getElementById('cardWord').textContent='Добавь первое слово';document.getElementById('cardHint').textContent='Твои карточки появятся здесь';document.getElementById('flip').disabled=true;return}document.getElementById('flip').disabled=false;document.getElementById('cardWord').textContent=w.en;document.getElementById('cardHint').textContent='Нажми на карточку или кнопку, чтобы увидеть перевод';document.getElementById('cardTranslation').textContent=w.ru;document.getElementById('cardExample').textContent=w.ex||''}
+function flip(){let w=words[index];if(!w)return;flipped=!flipped;document.getElementById('cardTranslation').classList.toggle('hidden',!flipped);document.getElementById('cardHint').textContent=flipped?'Перевод':'Нажми, чтобы увидеть перевод';if(flipped){w.seen=true;localStorage.setItem(KEY,JSON.stringify(words))}}
+document.getElementById('flash').onclick=flip;document.getElementById('flip').onclick=flip;
+document.getElementById('next').onclick=()=>{if(words.length)index=(index+1)%words.length;renderCard()};
+document.getElementById('prev').onclick=()=>{if(words.length)index=(index-1+words.length)%words.length;renderCard()};
+document.getElementById('save').onclick=()=>{let en=document.getElementById('en').value.trim(),ru=document.getElementById('ru').value.trim(),ex=document.getElementById('ex').value.trim();if(!en||!ru){toast('Заполни английское слово и перевод');return}if(words.some(w=>w.en.toLowerCase()===en.toLowerCase())){toast('Это слово уже есть в словаре');return}words.push({id:Date.now(),en,ru,ex,learned:false});index=words.length-1;['en','ru','ex'].forEach(id=>document.getElementById(id).value='');persist();toast('Слово добавлено!');showTab('study')};
+document.getElementById('clear').onclick=()=>['en','ru','ex'].forEach(id=>document.getElementById(id).value='');
+function renderList(){let q=(document.getElementById('search').value||'').toLowerCase(),box=document.getElementById('wordList');box.innerHTML='';let filtered=words.filter(w=>(w.en+' '+w.ru).toLowerCase().includes(q));if(!filtered.length){box.innerHTML='<div class="empty">Пока здесь пусто. Добавь первое слово!</div>';return}filtered.forEach(w=>{let d=document.createElement('div');d.className='item';let left=document.createElement('div');let strong=document.createElement('strong');strong.textContent=w.en;let small=document.createElement('small');small.textContent=w.ru+(w.learned?' · выучено':'');left.append(strong,small);let actions=document.createElement('div');actions.className='row';let learned=document.createElement('button');learned.className='secondary';learned.textContent=w.learned?'↩':'✓';learned.title='Отметить выученным';learned.onclick=()=>{w.learned=!w.learned;persist()};let del=document.createElement('button');del.className='danger';del.textContent='✕';del.title='Удалить';del.onclick=()=>{if(confirm('Удалить «'+w.en+'»?')){words=words.filter(x=>x.id!==w.id);index=Math.min(index,Math.max(0,words.length-1));persist()}};actions.append(learned,del);d.append(left,actions);box.append(d)})}
+document.getElementById('search').oninput=renderList;
+document.getElementById('export').onclick=()=>{let blob=new Blob([JSON.stringify(words,null,2)],{type:'application/json'}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='my-english-words.json';a.click();URL.revokeObjectURL(a.href);toast('Резервная копия готова')};
+document.getElementById('importBtn').onclick=()=>document.getElementById('importFile').click();
+document.getElementById('importFile').onchange=async e=>{let f=e.target.files[0];if(!f)return;try{let data=JSON.parse(await f.text());if(!Array.isArray(data)||!data.every(w=>w.en&&w.ru))throw 0;let map=new Map(words.map(w=>[w.en.toLowerCase(),w]));data.forEach(w=>map.set(w.en.toLowerCase(),{id:Date.now()+Math.random(),en:String(w.en),ru:String(w.ru),ex:String(w.ex||''),learned:!!w.learned}));words=[...map.values()];persist();toast('Словарь импортирован')}catch{toast('Не удалось прочитать файл')}e.target.value=''};
+function newQuiz(){let q=document.getElementById('choices');q.innerHTML='';document.getElementById('quizResult').textContent='';if(words.length<2){document.getElementById('quizWord').textContent='Нужно хотя бы 2 слова';return}quizCurrent=words[Math.floor(Math.random()*words.length)];document.getElementById('quizWord').textContent=quizCurrent.en;let opts=[quizCurrent,...words.filter(w=>w.id!==quizCurrent.id).sort(()=>Math.random()-.5).slice(0,3)].sort(()=>Math.random()-.5);opts.forEach(w=>{let b=document.createElement('button');b.className='secondary';b.textContent=w.ru;b.onclick=()=>{q.querySelectorAll('button').forEach(x=>x.disabled=true);let ok=w.id===quizCurrent.id;document.getElementById('quizResult').textContent=ok?'Верно! 🔥':'Не совсем. Правильный ответ: '+quizCurrent.ru;if(ok){quizCurrent.learned=true;persist()}};q.append(b)})}
+document.getElementById('newQuiz').onclick=newQuiz;
+renderStats();renderCard();renderList();
+</script>
+</body></html>
